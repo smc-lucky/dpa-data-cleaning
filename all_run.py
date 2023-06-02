@@ -46,9 +46,9 @@ config["k8s_api_server"] = "https://workflows.deepmodeling.com"
 #bohrium.config["password"] = getpass.getpass("Bohrium password: ")
 #bohrium.config["project_id"] = getpass.getpass("Bohrium project_id: ")
 
-bohrium.config["username"] = "shimengchao@dp.tech"
-bohrium.config["password"] = "smc124689.."
-bohrium.config["project_id"] = "11176"
+bohrium.config["username"] = "xxxxxxx"
+bohrium.config["password"] = "xxxxxx"
+bohrium.config["project_id"] = "xxxxxx"
 
 s3_config["repo_key"] = "oss-bohrium"
 s3_config["storage_client"] = TiefblueClient()
