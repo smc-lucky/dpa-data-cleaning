@@ -1,14 +1,16 @@
 from importlib import import_module
 
+import dpclean
 from dflow import (InputArtifact, InputParameter, Step, Steps, Workflow,
                    upload_artifact)
-from dflow.python import PythonOPTemplate
 from dflow.plugins.dispatcher import DispatcherExecutor
+from dflow.python import PythonOPTemplate
 from dpclean.op import SplitDataset
 
 
 class ActiveLearning(Steps):
     def __init__(self, select_op, train_op, select_image, train_image,
+                 select_image_pull_policy=None, train_image_pull_policy=None,
                  select_executor=None, train_executor=None):
         super().__init__("active-learning-loop")
         self.inputs.parameters["iter"] = InputParameter(value=0, type=int)
@@ -22,7 +24,8 @@ class ActiveLearning(Steps):
 
         select_step = Step(
             "select-samples",
-            template=PythonOPTemplate(select_op, image=select_image),
+            template=PythonOPTemplate(select_op, image=select_image,
+                                      python_packages=dpclean.__path__),
             parameters={"max_selected": self.inputs.parameters["max_selected"],
                         "threshold": self.inputs.parameters["threshold"]},
             artifacts={"systems": self.inputs.artifacts["candidate_systems"],
@@ -34,7 +37,8 @@ class ActiveLearning(Steps):
 
         train_step = Step(
             "train",
-            template=PythonOPTemplate(train_op, image=train_image),
+            template=PythonOPTemplate(train_op, image=train_image,
+                                      python_packages=dpclean.__path__),
             parameters={"train_params": self.inputs.parameters["train_params"]},
             artifacts={"current_systems": self.inputs.artifacts["current_systems"],
                        "added_systems": select_step.outputs.artifacts["selected_systems"],
@@ -87,12 +91,14 @@ def build_workflow(config):
     else:
         split_op = import_func(split_op)
     split_image = split.get("image", "dptechnology/dpdata")
+    split_image_pull_policy = split.get("image_pull_policy")
     split_executor = split.get("executor")
     if split_executor is not None:
         split_executor = DispatcherExecutor(**split_executor)
 
     select_op = import_func(select["op"])
     select_image = select["image"]
+    select_image_pull_policy = select.get("image_pull_policy")
     select_executor = select.get("executor")
     if select_executor is not None:
         select_executor = DispatcherExecutor(**select_executor)
@@ -101,6 +107,7 @@ def build_workflow(config):
 
     train_op = import_func(train["op"])
     train_image = train["image"]
+    train_image_pull_policy = train.get("image_pull_policy")
     train_executor = train.get("executor")
     if train_executor is not None:
         train_executor = DispatcherExecutor(**train_executor)
@@ -110,7 +117,9 @@ def build_workflow(config):
     dataset_artifact = upload_artifact(dataset)
     split_step = Step(
         "split-dataset",
-        template=PythonOPTemplate(split_op, image=split_image),
+        template=PythonOPTemplate(split_op, image=split_image,
+                                  image_pull_policy=split_image_pull_policy,
+                                  python_packages=dpclean.__path__),
         artifacts={"dataset": dataset_artifact},
         executor=split_executor,
         key="split-dataset"
@@ -118,7 +127,8 @@ def build_workflow(config):
     wf.add(split_step)
 
     active_learning = ActiveLearning(select_op, train_op, select_image,
-                                     train_image, select_executor,
+                                     train_image, select_image_pull_policy,
+                                     train_image_pull_policy, select_executor,
                                      train_executor)
 
     model_artifact = upload_artifact(model)

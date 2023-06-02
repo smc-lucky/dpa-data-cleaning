@@ -25,9 +25,7 @@ class SplitDataset(OP):
 
     @OP.exec_sign_check
     def execute(self, ip: OPIO) -> OPIO:
-        os.chdir(path)
         systems = []
-
         for f in os.listdir(ip["dataset"]):
             path = os.path.join(ip["dataset"], f)
             if os.path.isdir(path):
@@ -37,7 +35,7 @@ class SplitDataset(OP):
                 for i in range(nf):
                     target = "%s.%s" % (f, i)
                     k[i].to_deepmd_npy(target)
-                    systems.append(target)
+                    systems.append(Path(target))
 
         return OPIO({
             "systems": systems,

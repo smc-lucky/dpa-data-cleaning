@@ -31,7 +31,7 @@ dump.*
 *.out
 build
 dist
-dpgen2.egg-info
+dpclean.egg-info
 */*.pyc
 */__pycache__
 *.swp
@@ -41,4 +41,4 @@ dbconfig.json
 .vscode/*
 .idea/*
 _build
-dpgen2/_version.py
+dpclean/_version.py
