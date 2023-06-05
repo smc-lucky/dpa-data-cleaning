@@ -3,7 +3,7 @@ import os
 
 from dflow.python import OP, OPIO
 from dpclean.op import RunTrain
-from Pathlib import Path
+from pathlib import Path
 
 
 class RunDPTrain(RunTrain):
