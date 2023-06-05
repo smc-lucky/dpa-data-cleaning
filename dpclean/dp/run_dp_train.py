@@ -3,6 +3,7 @@ import os
 
 from dflow.python import OP, OPIO
 from dpclean.op import RunTrain
+from Pathlib import Path
 
 
 class RunDPTrain(RunTrain):
@@ -23,6 +24,6 @@ class RunDPTrain(RunTrain):
 
         return OPIO({
             "current_systems": ip["current_systems"] + ip["added_systems"],
-            "model": "graph.pb",
-            "output_dir": ".",
+            "model": Path("graph.pb"),
+            "output_dir": Path("."),
         })
