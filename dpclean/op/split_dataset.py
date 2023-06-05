@@ -34,7 +34,7 @@ class SplitDataset(OP):
 
                 for i in range(nf):
                     target = "%s.%s" % (f, i)
-                    k[i].to_deepmd_npy(target)
+                    k[i].to_deepmd_npy_mixed(target)
                     systems.append(Path(target))
 
         return OPIO({
